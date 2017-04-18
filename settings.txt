@@ -1,0 +1,19 @@
+; Settings for Twitch Plays Pokemon bot
+[Settings]
+
+; Your Twitch Bot's Username
+USERNAME = eyenobig
+
+; Name of the application you run the file from, I suggest VBA
+APP = VisualBoyAdvance
+
+; The maximum number of lines in commands.txt (Useful for showing commands received in stream)
+LENGTH = 100
+
+; Oh how to explain this...
+; You get the chat command 'Left'
+; You are currently facing right
+; If QUICK_PRESS is true you turn left
+; If QUICK_PRESS is false you turn left and move one square left
+QUICK_PRESS = left
+
