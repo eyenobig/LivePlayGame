@@ -1,8 +1,8 @@
 ; Settings for Twitch Plays Pokemon bot
 [Settings]
 
-; Your Twitch Bot's Username
-USERNAME = eyenobig
+; Your LiveRoom 
+LIVEROOM = https://www.douyu.com/63623
 
 ; Name of the application you run the file from, I suggest VBA
 APP = VisualBoyAdvance
@@ -15,5 +15,5 @@ LENGTH = 100
 ; You are currently facing right
 ; If QUICK_PRESS is true you turn left
 ; If QUICK_PRESS is false you turn left and move one square left
-QUICK_PRESS = left
+QUICK_PRESS = 0
 
