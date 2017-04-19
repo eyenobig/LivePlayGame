@@ -8,14 +8,14 @@ from danmu import DanMuClient
 #  生成 配置文件 如果有就退出
 
 settings = []
-test = ''
 shell = win32com.client.Dispatch("WScript.Shell")
+match = ['x','y','z']
 
 # 选择游戏
 GAME = os.listdir('game')[0]
 
-def pp(msg):
-    print(msg.encode(sys.stdin.encoding, 'ignore').decode(sys.stdin.encoding))
+def remsg(msg):
+    return msg.encode(sys.stdin.encoding, 'ignore').decode(sys.stdin.encoding)
 def startemulator():
     if os.path.splitext(os.listdir('game')[0])[1] != ".sgm"or".ini":
         os.system('"%s\game\%s"' % (os.getcwd(), GAME))
@@ -34,7 +34,6 @@ def press(*args):
 
 while True:
     if os.path.isfile("settings.txt"):
-        print("过段时间")
         config = configparser.ConfigParser()
         config.read("settings.txt")
 
@@ -103,11 +102,17 @@ if mode.lower() == "anarchy":
     #     pp('[%s] %s' % (msg['NickName'], msg['Content']))
     @dmc.danmu
     def danmu_fn(msg):
-        shell.AppActivate("VisualBoyAdvance")
-        time.sleep(.02)
-        press('z')
-        # test = msg
-        # print(test)
+        # data = remsg(msg)
+        button = msg['Content'].lower()
+        print(button)
+        if button in match:
+            shell.AppActivate("VisualBoyAdvance")
+            time.sleep(.02)
+            press(button)
+            record = time.strftime("%Y%m%d_%H", time.localtime())
+            with open("record/"+record+".txt", "a") as f:
+                f.write(button + '\n')
+                    
     dmc.start(blockThread = True)
 
     # while 1:

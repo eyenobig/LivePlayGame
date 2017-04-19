@@ -2,7 +2,7 @@
 [Settings]
 
 ; Your LiveRoom 
-LIVEROOM = https://www.douyu.com/63623
+LIVEROOM = https://www.douyu.com/2041308
 
 ; Name of the application you run the file from, I suggest VBA
 APP = VisualBoyAdvance
