@@ -86,8 +86,6 @@ while True:
 
 # Anarchy Game Mode
 if mode.lower() == "anarchy":
-    with open("lastsaid.txt", "w") as f:
-        f.write("")
 
     print("Starting %s" % GAME)
     time.sleep(1)
@@ -97,192 +95,51 @@ if mode.lower() == "anarchy":
     dmc = DanMuClient(URL)
     if not dmc.isValid(): print('Url not valid')
 
-    # @dmc.danmu
-    # def danmu_fn(msg):
-    #     pp('[%s] %s' % (msg['NickName'], msg['Content']))
     @dmc.danmu
     def danmu_fn(msg):
-        # data = remsg(msg)
         button = msg['Content'].lower()
         print(button)
+        print("[Over Game]")
+        dmc.stop()
         if button in match:
             shell.AppActivate("VisualBoyAdvance")
             time.sleep(.02)
             press(button)
+
             record = time.strftime("%Y%m%d_%H", time.localtime())
-            with open("record/"+record+".txt", "a") as f:
+            with open("record/"+record+".json", "a") as f:
                 f.write(button + '\n')
-                    
+
     dmc.start(blockThread = True)
+    # time.sleep(20)
 
-    # while 1:
-
-    #     print (test)
-    #     readbuffer = readbuffer+s.recv(1024).decode("UTF-8", errors="ignore")
-    #     temp = str.split(readbuffer, "\n")
-    #     readbuffer=temp.pop( )
-
-    #     for line in temp:
-    #         x = 0
-    #         out = ""
-    #         line = str.rstrip(line)
-    #         line = str.split(line)
-
-    #         for index, i in enumerate(line):
-    #             if x == 0:
-    #                 user = line[index]
-    #                 user = user.split('!')[0]
-    #                 user = user[0:12] + ": "
-    #             if x == 3:
-    #                 out += line[index]
-    #                 out = out[1:]
-    #             if x >= 4:
-    #                 out += " " + line[index]
-    #             x = x + 1
-
-    #         # Respond to ping, squelch useless feedback given by twitch, print output and read to list
-    #         if user == "PING: ":
-    #             s.send(bytes("PONG tmi.twitch.tv\r\n", "UTF-8"))
-    #         elif user == ":tmi.twitch.tv: ":
-    #             pass
-    #         elif user == ":tmi.twitch.: ":
-    #             pass
-    #         elif user == ":%s.tmi.twitch.tv: " % NICK:
-    #             pass
-    #         else:
-    #             try:
-    #                 print(user + out)
-    #             except UnicodeEncodeError:
-    #                 print(user)
-
-    #         # Take in output
-    #         if out.lower() == 'up':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('up_arrow')
-    #             addtofile()
-    #         if out.lower() == 'right':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('right_arrow')
-    #             addtofile()
-    #         if out.lower() == 'down':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('down_arrow')
-    #             addtofile()
-    #         if out.lower() == 'left':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('left_arrow')
-    #             addtofile()
-    #         if out.lower() == 'a':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('z')
-    #             addtofile()
-    #         if out.lower() == 'b':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('x')
-    #             addtofile()
-    #         if out.lower() == 'start':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('enter')
-    #             addtofile()
-    #         if out.lower() == 'select':
-    #             shell.AppActivate("%s" % APP)
-    #             time.sleep(.02)
-    #             press('backspace')
-    #             addtofile()
-
-    #         # Write to file for stream view
-    #         with open("commands.txt", "w") as f:
-    #             for item in commands:
-    #                 f.write(item + '\n')
 
 # Democracy Game Mode
 if mode.lower() == "democracy":
-    with open("lastsaid.txt", "w") as f:
-        f.write("")
 
-    count_job = Thread(target = democracy, args = ())
-    count_job.start()
-    #count_job.join()
 
     print("Starting %s" % GAME)
     time.sleep(1)
     emulator_job = Thread(target = startemulator, args = ())
     emulator_job.start()
 
-    s=socket.socket( )
-    s.connect((HOST, PORT))
+    dmc = DanMuClient(URL)
+    if not dmc.isValid(): print('Url not valid')
 
-    s.send(bytes("PASS %s\r\n" % AUTH, "UTF-8"))
-    s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
-    s.send(bytes("USER %s %s bla :%s\r\n" % (NICK, HOST, NICK), "UTF-8"))
-    s.send(bytes("JOIN #%s\r\n" % CHAT_CHANNEL, "UTF-8"));
-    s.send(bytes("PRIVMSG #%s :Connected\r\n" % CHAT_CHANNEL, "UTF-8"))
-    print("Sent connected message to channel %s" % CHAT_CHANNEL)
+    @dmc.danmu
+    def danmu_fn(msg):
+        button = msg['Content'].lower()
+        print (button)
+        if button in match:
+            shell.AppActivate("VisualBoyAdvance")
+            time.sleep(.02)
+            press(button)
+            record = time.strftime("%Y%m%d_%H", time.localtime())
+            with open("record/"+record+".json", "a") as f:
+                f.write(button + '\n')
 
-    while 1:
-        readbuffer = readbuffer+s.recv(1024).decode("UTF-8", errors="ignore")
-        temp = str.split(readbuffer, "\n")
-        readbuffer=temp.pop( )
+    dmc.start(blockThread = True)
+    # time.sleep(20)
+    # print("[Over Game]")
+    # dmc.start(blockThread = false)
 
-        for line in temp:
-            x = 0
-            out = ""
-            line = str.rstrip(line)
-            line = str.split(line)
-
-            for index, i in enumerate(line):
-                if x == 0:
-                    user = line[index]
-                    user = user.split('!')[0]
-                    user = user[0:12] + ": "
-                if x == 3:
-                    out += line[index]
-                    out = out[1:]
-                if x >= 4:
-                    out += " " + line[index]
-                x = x + 1
-
-            # Respond to ping, squelch useless feedback given by twitch, print output and read to list
-            if user == "PING: ":
-                s.send(bytes("PONG tmi.twitch.tv\r\n", "UTF-8"))
-            elif user == ":tmi.twitch.tv: ":
-                pass
-            elif user == ":tmi.twitch.: ":
-                pass
-            elif user == ":%s.tmi.twitch.tv: " % NICK:
-                pass
-            else:
-                try:
-                    print(user + out)
-                except UnicodeEncodeError:
-                    print(user)
-
-            # Take in output
-            if out.lower() == 'up':
-                addtofile()
-            if out.lower() == 'right':
-                addtofile()
-            if out.lower() == 'down':
-                addtofile()
-            if out.lower() == 'left':
-                addtofile()
-            if out.lower() == 'a':
-                addtofile()
-            if out.lower() == 'b':
-                addtofile()
-            if out.lower() == 'start':
-                addtofile()
-            if out.lower() == 'select':
-                addtofile()
-
-            # Write to file for stream view
-            with open("commands.txt", "w") as f:
-                for item in commands:
-                    f.write(item + '\n')
