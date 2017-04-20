@@ -10,10 +10,15 @@ from danmu import DanMuClient
 settings = []
 shell = win32com.client.Dispatch("WScript.Shell")
 match = ['x','y','z']
-
+retime = time.time()
 # 选择游戏
 GAME = os.listdir('game')[0]
 
+def Stat(data):
+    obj = "{"
+    for v in data:
+        obj += '"' + v + '":"0",' 
+    obj = eval(obj[:-1] + '}')
 def remsg(msg):
     return msg.encode(sys.stdin.encoding, 'ignore').decode(sys.stdin.encoding)
 def startemulator():
@@ -89,6 +94,7 @@ if mode.lower() == "anarchy":
 
     print("Starting %s" % GAME)
     time.sleep(1)
+
     emulator_job = Thread(target = startemulator, args = ())
     emulator_job.start()
 
@@ -98,20 +104,17 @@ if mode.lower() == "anarchy":
     @dmc.danmu
     def danmu_fn(msg):
         button = msg['Content'].lower()
-        print(button)
-        print("[Over Game]")
-        dmc.stop()
+        print(button)    
         if button in match:
             shell.AppActivate("VisualBoyAdvance")
             time.sleep(.02)
             press(button)
-
             record = time.strftime("%Y%m%d_%H", time.localtime())
             with open("record/"+record+".json", "a") as f:
                 f.write(button + '\n')
 
     dmc.start(blockThread = True)
-    # time.sleep(20)
+    
 
 
 # Democracy Game Mode
@@ -122,24 +125,30 @@ if mode.lower() == "democracy":
     time.sleep(1)
     emulator_job = Thread(target = startemulator, args = ())
     emulator_job.start()
-
+    Log = Stat(match)
     dmc = DanMuClient(URL)
     if not dmc.isValid(): print('Url not valid')
+
+    retime = time.time()
+
 
     @dmc.danmu
     def danmu_fn(msg):
         button = msg['Content'].lower()
-        print (button)
+        print("弹幕时间"+ str(time.time()))
+        nowtime = time.time()
+        # print(retime)
+        if nowtime > retime + 20:
+            retime = nowtime
         if button in match:
             shell.AppActivate("VisualBoyAdvance")
             time.sleep(.02)
+            Log['x'] += 1
+            
             press(button)
             record = time.strftime("%Y%m%d_%H", time.localtime())
             with open("record/"+record+".json", "a") as f:
                 f.write(button + '\n')
 
     dmc.start(blockThread = True)
-    # time.sleep(20)
-    # print("[Over Game]")
-    # dmc.start(blockThread = false)
-
+    
