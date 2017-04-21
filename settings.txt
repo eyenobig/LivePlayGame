@@ -2,7 +2,7 @@
 [Settings]
 
 ; Your LiveRoom 
-LIVEROOM = https://www.douyu.com/fengtimo
+LIVEROOM = https://www.douyu.com/606118
 
 ; Name of the application you run the file from, I suggest VBA
 APP = VisualBoyAdvance
@@ -10,10 +10,9 @@ APP = VisualBoyAdvance
 ; The maximum number of lines in commands.txt (Useful for showing commands received in stream)
 LENGTH = 100
 
-; Oh how to explain this...
-; You get the chat command 'Left'
-; You are currently facing right
-; If QUICK_PRESS is true you turn left
-; If QUICK_PRESS is false you turn left and move one square left
-QUICK_PRESS = 0
+; 是否直接转向
+QUICK_PRESS = 1
+
+; 1是弹幕记录时间 0是时间记录时间
+Time_Model = 0
 
