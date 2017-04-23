@@ -1,17 +1,17 @@
 import os
 import configparser
-import time, sys
+import time, sys,json,requests
 import win32com.client, win32api, win32con
-from key import VK_CODE
+from key import Use_CODE
 from threading import Thread
 from danmu import DanMuClient
+from key.object import DanmuRecord,VoteRecord
+
 #  生成 配置文件 如果有就退出
 
 settings = []
 shell = win32com.client.Dispatch("WScript.Shell")
-match = ["anarchy","democracy",'x','y','z']
 # 选择游戏
-GAME = os.listdir('game')[0]
 def Stat(data):
     obj = "{"
     for v in data:
@@ -28,13 +28,15 @@ def press(*args):
     press, release
     eg press('x', 'y', 'z')
     '''
+    if args == "freedom" or args == "democracy":
+        pass
     for i in args:
-        win32api.keybd_event(VK_CODE[i], 0, 0, 0)
+        win32api.keybd_event(Use_CODE[i], 0, 0, 0)
         if QUICK_PRESS == False:
             time.sleep(0.2)
         if QUICK_PRESS == True:
             time.sleep(.01)
-        win32api.keybd_event(VK_CODE[i],0 ,win32con.KEYEVENTF_KEYUP ,0)
+        win32api.keybd_event(Use_CODE[i],0 ,win32con.KEYEVENTF_KEYUP ,0)
 def Maxconut(data):
     max = 0
     key = ''
@@ -47,9 +49,9 @@ def Model_Recod(data):
     Sum = 0
     for v in data:
         Sum += data[v]
-    if data['anarchy']:
-        if data['anarchy']/Sum >= 0.6:
-            return 'anarchy'
+    if data['freedom']:
+        if data['freedom']/Sum >= 0.6:
+            return 'freedom'
     if data['democracy']:
         if data['democracy']/Sum >= 0.5:
             return 'democracy'
@@ -63,21 +65,24 @@ def Time_load(Model):
 
         if time.time() > retime + democracy_time:
             retime = time.time()
-            # print("到点了")
-            print(Log)
+            # print(Log)
             # print(Time_re.__dict__)
             NewModel = Model_Recod(Log)
             if NewModel:
+                DataJ = VoteRecord(NewModel,Log).json()
+                requests.post("http://127.0.0.1:5000/vote", data=DataJ)
                 ChangeModel(NewModel,Model)
+            # print(Log)
             Fbutton = Maxconut(Log)
-            Log = Stat(match)
+            Log = Stat(MATCH)
             shell.AppActivate("VisualBoyAdvance")
             time.sleep(.02)
             press(Fbutton)
-            print("投票结果" + Fbutton)
-            record = time.strftime("%Y%m%d_%H", time.localtime())
-            with open("record/"+record+".json", "a") as f:
-                f.write(Fbutton + '\n')
+            DataJ = VoteRecord(Fbutton,Log).json()
+            VoteId = requests.post("http://127.0.0.1:5000/vote", data=DataJ)
+            # print("投票结果" + Fbutton)
+            DataJ = DanmuRecord(Model,Fbutton,VoteId.text).json()
+            requests.post("http://127.0.0.1:5000/record", data=DataJ)
 def Time_Change(Model):
 
     while True:
@@ -86,39 +91,43 @@ def Time_Change(Model):
         if time.time() > retime + democracy_time:
             retime = time.time()
             NewModel = Model_Recod(Log)
-            Log = Stat(match)
+            Log = Stat(MATCH)
             if NewModel:
+                DataJ = VoteRecord(NewModel,Log).json()
+                requests.post("http://127.0.0.1:5000/vote", data=DataJ)
                 ChangeModel(NewModel,Model)
 def PlayGame(Model):
     global Time_re
     global retime
     global Log
+    global dmc
     dmc = DanMuClient(URL)
     if not dmc.isValid(): print('Url not valid')
     Model = Model.lower()
     retime = time.time()
-    Log = Stat(match)
-    if Time_Model == False and Model == 'anarchy' :
+    Log = Stat(MATCH)
+    if Model == 'freedom' :
         Time_re = Thread(target = Time_Change, args = (Model,))
         Time_re.start()
-    if Time_Model == False and Model == 'democracy' :
+    if Model == 'democracy' :
         Time_re = Thread(target = Time_load, args = (Model,))
         Time_re.start()
     @dmc.danmu
     def danmu_fn(msg):
         button = msg['Content'].lower()
-        print(button)
-        if button in match:
+
+        print(msg)
+        if button in MATCH:
             Log[button] += 1
-            if Model == 'anarchy':
+            if Model == 'freedom':
                 shell.AppActivate("VisualBoyAdvance")
                 time.sleep(.02)
                 press(button)
-                record = time.strftime("%Y%m%d_%H", time.localtime())
-                with open("record/"+record+".json", "a") as f:
-                    f.write(button + '\n')
+                DataJ = DanmuRecord(msg['NickName'],button).json()
+                requests.post("http://127.0.0.1:5000/record", data=DataJ)
             if Model == 'democracy':
                 Log[button] += 1
+
     dmc.start(blockThread = True)
 
 def ChangeModel(Model,NowModel):
@@ -127,8 +136,7 @@ def ChangeModel(Model,NowModel):
     if Model != NowModel:
         print("切换模式中")
         dmc.stop()
-        if Time_Model == False:
-            Time_re._is_stopped = True
+        Time_re._is_stopped = True
         PlayGame(Model)
 
 while True:
@@ -139,9 +147,9 @@ while True:
         URL = config.get('Settings', 'LIVEROOM').lower()
         APP = config.get('Settings', 'APP')
         QUICK_PRESS = config.getboolean('Settings', 'QUICK_PRESS')
-        Time_Model = config.getboolean('Settings', 'Time_Model')
-        # CHAT_CHANNEL = config.get('Settings', 'CHAT_CHANNEL').lower()
-        command_length = config.getint('Settings', 'LENGTH')
+
+        MATCH = config.get('Settings', 'MATCH_PRESS').split(",")
+        GAME = config.get('Settings', 'GAME')
 
         break
     else:
@@ -160,35 +168,35 @@ while True:
         settings_app = input("Application name: ")
         settings.append("APP = " + settings_app + "\n")
 
-        settings.append("; The maximum number of lines in commands.txt (Useful for showing commands received in stream)")
-        print("The maximum number of lines in commands.txt (Useful for showing commands received in stream)")
-        settings_length = input("Length: ")
-        settings.append("LENGTH = " + settings_length + "\n")
-
         settings.append("; 是否直接转向")
-        print("是否直接转向")
+        print("是否开启直接转向")
         settings_press = input("QUICK PRESS: ")
         settings.append("QUICK_PRESS = " + settings_press + "\n")
 
-        settings.append("; 1是弹幕记录时间 0是时间记录时间")
-        print("时间记录方式")
-        print("1是弹幕记录时间 0是时间记录时间")
-        settings_Time_Model = input("Time Model: ")
-        settings.append("Time_Model = " + settings_Time_Model + "\n")
+        settings.append("; 设置录入按键")
+        print("设置录入按键")
+        settings_press = input("MATCH PRESS: ")
+        settings.append("MATCH_PRESS = 'freedom','democracy'," + settings_press + "\n")
+
+        settings.append("; 设置游戏[Game]文件夹下")
+        print("设置游戏[Game]文件夹下")
+        settings_press = input("Game: ")
+        settings.append("GAME = " + settings_press + "\n")
 
         with open("settings.txt", "w") as f:
             for each_setting in settings:
                 f.write(each_setting + '\n')
 
-while True:
-    # print("选择模式:  Democracy(民主),Anarchy(自由)")
-    # mode = input("Game type: ")
-    # if mode.lower() == "anarchy":
-    #     break
-    # if mode.lower() == "democracy":
-    print("设置 X 秒 读取命令行: ")
-    democracy_time = float(input("(must be integer) X="))
-    break
+# while True:
+#     # print("选择模式:  Democracy(民主),freedom(自由)")
+#     # mode = input("Game type: ")
+#     # if mode.lower() == "freedom":
+#     #     break
+#     # if mode.lower() == "democracy":
+#     print("设置 X 秒 读取命令行: ")
+#     democracy_time = float(input("(must be integer) X="))
+#     break
+democracy_time = 3
 
 
 print("Starting %s" % GAME)
@@ -201,4 +209,4 @@ emulator_job.start()
 
 
 # PlayGame(mode)
-PlayGame("Anarchy")
+# PlayGame("Democracy")

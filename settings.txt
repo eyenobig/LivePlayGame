@@ -2,17 +2,17 @@
 [Settings]
 
 ; Your LiveRoom 
-LIVEROOM = https://www.douyu.com/606118
+LIVEROOM = https://www.douyu.com/2041308
 
 ; Name of the application you run the file from, I suggest VBA
 APP = VisualBoyAdvance
 
-; The maximum number of lines in commands.txt (Useful for showing commands received in stream)
-LENGTH = 100
-
 ; 是否直接转向
-QUICK_PRESS = 1
+QUICK_PRESS = 0
 
-; 1是弹幕记录时间 0是时间记录时间
-Time_Model = 0
+; 设置录入按键
+MATCH_PRESS = anarchy,democracy,left,up,right,down,b,a,l,r,select,star
+
+; 设置游戏[Game]文件夹下
+GAME = A.gba
 

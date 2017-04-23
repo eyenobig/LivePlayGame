@@ -144,3 +144,18 @@ VK_CODE = {'backspace':0x08,
                     ']':0xDD,
                     "'":0xDE,
                     '`':0xC0}
+Use_CODE = {'left':0x25,
+                    'up':0x26,
+                    'right':0x27,
+                    'down':0x28,
+                    'b':0x58,
+                    'a':0x5A,
+                    'l':0x41,
+                    'r':0x53,
+                    'select':0x08,
+                    'star':0x0D}
+# print(Use_CODE)
+# v = ''
+# for x in Use_CODE:
+#      v += "," +x
+# print(v)
